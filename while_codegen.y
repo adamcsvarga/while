@@ -67,9 +67,13 @@ right_hand  : tok_EMPTY                                      {
                                                              } 
             | tok_CONS tok_SYMBOL tok_OPAR tok_VAR tok_CPAR  {
                                                                 int k = find(lhVar);
+																int l = find($4);
                                                                 char* rh_value[80];
-                                                                strcpy(rh_value, locList[k].value);
-                                                                strcat($2)
+																char* conc_value[100];
+                                                                strcpy(rh_value, locList[l].value);
+																strcpy(conc_value, $2);
+                                                                strcat(conc_value, rh_value);
+																strcpy(locList[k].value, conc_value);
                                                                 
                                                              }
             | tok_CDR tok_OPAR tok_VAR tok_CPAR              {printf("assigning trimmed %s.\n", $3);}
