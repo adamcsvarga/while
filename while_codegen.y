@@ -18,6 +18,7 @@ char tmpContent[80];
 
 char leftHand[30], rightHand[50], tmpBool[30];
 int tmpLineNo;
+int added = 0;
 
 %}
 
@@ -48,9 +49,14 @@ int tmpLineNo;
 
 program     :                   { /* Starting with empty program */ }
             | program statement { /* Adding new line of code to local array */ 
-                                    locList[lineNo].ident = identLevel;
-                                    locList[lineNo].value = tmp_content;
-                                    lineNo++;
+                                    if(added == 0) {
+                                        locList[lineNo].ident = identLevel;
+                                        locList[lineNo].value = strdup(tmpContent);
+                                        /*printf("%i, %i, %s\n", lineNo, identLevel, tmpContent);*/
+                                        lineNo++;
+                                    }
+                                    
+                                    added = 0;
                                 }
             ;
 
@@ -68,7 +74,7 @@ assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
             ;
             
 right_hand  : tok_EMPTY                                      { /* Assigning empty string */ 
-                                                                rightHand = "\"\"";
+                                                                strcpy(rightHand, "\"\"");
                                                              } 
             | tok_CONS tok_SYMBOL tok_OPAR tok_VAR tok_CPAR  { /* Assigning var with concatenated symbol */
                                                                 strcpy(rightHand, "\"");
@@ -89,7 +95,8 @@ while       : tok_WHILE bool tok_LOOP program tok_END   { /* While loop */
                                                             strcat(tmpContent, tmpBool);
                                                             identLevel--;
                                                             locList[tmpLineNo].ident = identLevel;
-                                                            locList[tmpLineNo].value = tmp_content;
+                                                            locList[tmpLineNo].value = strdup(tmpContent);
+                                                            added = 1;
                                                         }
             ;
 
@@ -100,13 +107,15 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                             strcat(tmpBool, "\"");
                                                                             strcat(tmpBool, $2);
                                                                             strcat(tmpBool, "\":");
-                                                                            identLevel++;                                                                        
+                                                                            identLevel++;
+                                                                            lineNo++;                                                                        
                                                                         }
             | tok_NONEM tok_QMARK tok_OPAR tok_VAR tok_CPAR             {/* Check if var is empty */
                                                                             tmpLineNo = lineNo;
                                                                             strcpy(tmpBool, $4);
-                                                                            strcat(tmpBool, " == \"\":");
+                                                                            strcat(tmpBool, " != \"\":");
                                                                             identLevel++;
+                                                                            lineNo++;
                                                                         }
             ;
 
@@ -115,7 +124,8 @@ if          : tok_IF bool tok_THEN program tok_END  {/* If branch */
                                                         strcat(tmpContent, tmpBool);
                                                         identLevel--;
                                                         locList[tmpLineNo].ident = identLevel;
-                                                        locList[tmpLineNo].value = tmp_content;
+                                                        locList[tmpLineNo].value = strdup(tmpContent);
+                                                        added = 1;
                                                     }
             ;
             
@@ -127,13 +137,17 @@ print       : tok_VAR tok_SEP   { /* Print  var */
             ;
 %%
 
-/*void emitCode(FILE *fout) {
+void emitCode(FILE *fout) {
     int i;
-    printf(locList[0].value);
-    for(i = 0; i <= lineNo; i++) {
+    for(i = 0; i < lineNo; i++) {
+        int j;
+        for(j = 0; j < locList[i].ident; j++) {
+            fprintf(fout, "    ");
+        }
         fprintf(fout, "%s\n", locList[i].value);
     }
-}*/
+    
+}
 
 int yyerror(char *errMessage) {
     printf("Trouble: %s\n", errMessage);
@@ -144,5 +158,5 @@ main() {
     yyparse();
     
     fout = fopen("while.py","w");
-    /*emitCode(fout);*/
+    emitCode(fout);
 }
