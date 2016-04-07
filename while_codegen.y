@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_PROGRAM_LENGTH 1000
+#define MAX_PROGRAM_LENGTH 2000
+#define MAX_NESTING_LEVEL 8
 
 typedef struct {
     int ident;
@@ -17,7 +18,7 @@ int lineNo = 0;
 char tmpContent[80];
 
 char leftHand[30], rightHand[50], tmpBool[30];
-int tmpLineNo;
+int tmpLineNo[MAX_NESTING_LEVEL];
 int added = 0;
 
 %}
@@ -90,18 +91,18 @@ right_hand  : tok_EMPTY                                      { /* Assigning empt
                                                              }
             ;
             
-while       : tok_WHILE bool tok_LOOP program tok_END   { /* While loop */
+while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP  { /* While loop */
                                                             strcpy(tmpContent, "while ");
                                                             strcat(tmpContent, tmpBool);
                                                             identLevel--;
-                                                            locList[tmpLineNo].ident = identLevel;
-                                                            locList[tmpLineNo].value = strdup(tmpContent);
+                                                            locList[tmpLineNo[identLevel]].ident = identLevel;
+                                                            locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
                                                             added = 1;
                                                         }
             ;
 
 bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Check first char of var */
-                                                                            tmpLineNo = lineNo;
+                                                                            tmpLineNo[identLevel] = lineNo;
                                                                             strcpy(tmpBool, $5);
                                                                             strcat(tmpBool, "[0] == ");
                                                                             strcat(tmpBool, "\"");
@@ -111,7 +112,7 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                             lineNo++;                                                                        
                                                                         }
             | tok_NONEM tok_QMARK tok_OPAR tok_VAR tok_CPAR             {/* Check if var is empty */
-                                                                            tmpLineNo = lineNo;
+                                                                            tmpLineNo[identLevel] = lineNo;
                                                                             strcpy(tmpBool, $4);
                                                                             strcat(tmpBool, " != \"\":");
                                                                             identLevel++;
@@ -119,12 +120,12 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                         }
             ;
 
-if          : tok_IF bool tok_THEN program tok_END  {/* If branch */
+if          : tok_IF bool tok_THEN program tok_END tok_IF {/* If branch */
                                                         strcpy(tmpContent, "if ");
                                                         strcat(tmpContent, tmpBool);
                                                         identLevel--;
-                                                        locList[tmpLineNo].ident = identLevel;
-                                                        locList[tmpLineNo].value = strdup(tmpContent);
+                                                        locList[tmpLineNo[identLevel]].ident = identLevel;
+                                                        locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
                                                         added = 1;
                                                     }
             ;

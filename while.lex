@@ -29,7 +29,7 @@ x[123456789][0-9]*  {yylval.str = strdup(yytext); return tok_VAR;}
 "car_"              {return tok_CAR;}
 "nonem"             {return tok_NONEM;}
 
-[^x]                {yylval.str = strdup(yytext); return tok_SYMBOL;}
+[^x]                  {yylval.str = strdup(yytext); return tok_SYMBOL;}
 
 .                   {return tok_ERR;}
 
