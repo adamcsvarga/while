@@ -17,7 +17,7 @@ int identLevel = 0;
 int lineNo = 0;
 char tmpContent[80];
 
-char leftHand[30], rightHand[50], tmpBool[30];
+char leftHand[30], rightHand[50], tmpBool[MAX_NESTING_LEVEL][30];
 int tmpLineNo[MAX_NESTING_LEVEL];
 int added = 0;
 
@@ -65,8 +65,8 @@ program     :                   { /* Starting with empty program */ }
 statement   : assignment    { }
             | while         { }
             | if            { }
-            | print         { }
-            | tok_COMMENT   { }
+            /*| print         { }*/
+            | tok_COMMENT   { added = 1;}
             ;
 
 assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
@@ -76,8 +76,8 @@ assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
                                                     }
             ;
             
-right_hand  : tok_EMPTY                                      { /* Assigning empty string */ 
-                                                                strcpy(rightHand, "\"\"");
+right_hand  : tok_EMPTY                                      { /* Assigning empty list */ 
+                                                                strcpy(rightHand, "[]");
                                                              } 
             | tok_CONS tok_SYMBOL tok_OPAR tok_VAR tok_CPAR  { /* Assigning var with concatenated symbol */
                                                                 strcpy(rightHand, "\"");
@@ -89,14 +89,15 @@ right_hand  : tok_EMPTY                                      { /* Assigning empt
                                                                 strcpy(rightHand, $3);
                                                                 strcat(rightHand, "[1:] if len(");
                                                                 strcat(rightHand, $3);
-                                                                strcat(rightHand, ") > 1 else \"\"");                                                            
+                                                                strcat(rightHand, ") > 1 else []");                                                            
                                                              }
             ;
             
 while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP tok_SEP  { /* While loop */
                                                             strcpy(tmpContent, "while ");
-                                                            strcat(tmpContent, tmpBool);
+                                                            
                                                             identLevel--;
+                                                            strcat(tmpContent, tmpBool[identLevel]);
                                                             locList[tmpLineNo[identLevel]].ident = identLevel;
                                                             locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
                                                             added = 1;
@@ -105,18 +106,18 @@ while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP tok_SEP  { /* Whi
 
 bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Check first char of var */
                                                                             tmpLineNo[identLevel] = lineNo;
-                                                                            strcpy(tmpBool, $5);
-                                                                            strcat(tmpBool, "[0] == ");
-                                                                            strcat(tmpBool, "\"");
-                                                                            strcat(tmpBool, $2);
-                                                                            strcat(tmpBool, "\":");
+                                                                            strcpy(tmpBool[identLevel], $5);
+                                                                            strcat(tmpBool[identLevel], "[0] == ");
+                                                                            strcat(tmpBool[identLevel], "\"");
+                                                                            strcat(tmpBool[identLevel], $2);
+                                                                            strcat(tmpBool[identLevel], "\":");
                                                                             identLevel++;
                                                                             lineNo++;                                                                        
                                                                         }
             | tok_NONEM tok_QMARK tok_OPAR tok_VAR tok_CPAR             {/* Check if var is empty */
                                                                             tmpLineNo[identLevel] = lineNo;
-                                                                            strcpy(tmpBool, $4);
-                                                                            strcat(tmpBool, " != \"\":");
+                                                                            strcpy(tmpBool[identLevel], $4);
+                                                                            strcat(tmpBool[identLevel], " != []:");
                                                                             identLevel++;
                                                                             lineNo++;
                                                                         }
@@ -124,29 +125,32 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
 
 if          : tok_IF bool tok_THEN program tok_END tok_IF tok_SEP {/* If branch */
                                                         strcpy(tmpContent, "if ");
-                                                        strcat(tmpContent, tmpBool);
+                                                        
                                                         identLevel--;
+                                                        strcat(tmpContent, tmpBool[identLevel]);
                                                         locList[tmpLineNo[identLevel]].ident = identLevel;
                                                         locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
                                                         added = 1;
                                                     }
             ;
             
-print       : tok_VAR tok_SEP   { /* Print  var */
+/*print       : tok_VAR tok_SEP   { 
                                     strcpy(tmpContent, "print(");
                                     strcat(tmpContent, $1);
                                     strcat(tmpContent, ")");
                                 }
-            ;
+            ;*/
 %%
 
 void emitCode(FILE *fout) {
     int i;
+    fprintf(fout, "def do_comp(x):");
     for(i = 0; i < lineNo; i++) {
         int j;
         for(j = 0; j < locList[i].ident; j++) {
             fprintf(fout, "    ");
         }
+        fprintf(fout, "    ");
         fprintf(fout, "%s\n", locList[i].value);
     }
     
