@@ -33,12 +33,13 @@
 <INITIAL>"car_"              	{ return tok_CAR;}
 <INITIAL>"nonem"             	{ return tok_NONEM;}
 
-<comment>[^\n]*					{ };
+<INITIAL>"#"                    { BEGIN(comment);}
+<comment>[^\n]*					{ return tok_COMMENT;}
 <comment>[\n]					{ BEGIN(INITIAL);}
 
-[^ \t\n;€:=\(\)\?_#]+			{ yylval.str = strdup(yytext); return tok_SYMBOL;}
+<INITIAL>[^ \t\n;€:=\(\)\?_#]+  { yylval.str = strdup(yytext); return tok_SYMBOL;}
 
-.                   			{ return tok_ERR;}
+<INITIAL>.                   	{ return tok_ERR;}
 
 %%
 

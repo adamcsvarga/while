@@ -45,6 +45,7 @@ int added = 0;
 %token tok_NONEM 
 %token <str> tok_SYMBOL 
 %token tok_ERR
+%token tok_COMMENT
 
 %%
 
@@ -61,10 +62,11 @@ program     :                   { /* Starting with empty program */ }
                                 }
             ;
 
-statement   : assignment    { /* Variable assignment */ }
+statement   : assignment    { }
             | while         { }
             | if            { }
             | print         { }
+            | tok_COMMENT   { }
             ;
 
 assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
@@ -91,7 +93,7 @@ right_hand  : tok_EMPTY                                      { /* Assigning empt
                                                              }
             ;
             
-while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP  { /* While loop */
+while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP tok_SEP  { /* While loop */
                                                             strcpy(tmpContent, "while ");
                                                             strcat(tmpContent, tmpBool);
                                                             identLevel--;
@@ -120,7 +122,7 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                         }
             ;
 
-if          : tok_IF bool tok_THEN program tok_END tok_IF {/* If branch */
+if          : tok_IF bool tok_THEN program tok_END tok_IF tok_SEP {/* If branch */
                                                         strcpy(tmpContent, "if ");
                                                         strcat(tmpContent, tmpBool);
                                                         identLevel--;
