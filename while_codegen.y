@@ -80,9 +80,9 @@ right_hand  : tok_EMPTY                                      { /* Assigning empt
                                                                 strcpy(rightHand, "[]");
                                                              } 
             | tok_CONS tok_SYMBOL tok_OPAR tok_VAR tok_CPAR  { /* Assigning var with concatenated symbol */
-                                                                strcpy(rightHand, "\"");
+                                                                strcpy(rightHand, "[\"");
                                                                 strcat(rightHand, $2);
-                                                                strcat(rightHand, "\" + ");
+                                                                strcat(rightHand, "\"] + ");
                                                                 strcat(rightHand, $4);   
                                                              }
             | tok_CDR tok_OPAR tok_VAR tok_CPAR              { /* Assigning trimmed var */
