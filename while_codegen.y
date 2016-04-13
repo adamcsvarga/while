@@ -70,7 +70,13 @@ statement   : assignment    { }
             ;
 
 assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
-                                                      strcpy(tmpContent, $1);
+													  char tmpVar[15];
+													  strcpy(tmpVar, $1);
+													  strcpy(tmpContent, tmpVar[0]);
+													  tmpVar++;
+													  strcat(tmpContent, "[");
+													  strcat(tmpContent, tmpVar);
+													  strcat(tmpContent, "]");
                                                       strcat(tmpContent, " = ");
                                                       strcat(tmpContent, rightHand);   
                                                     }
@@ -106,7 +112,15 @@ while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP tok_SEP  { /* Whi
 
 bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Check first char of var */
                                                                             tmpLineNo[identLevel] = lineNo;
-                                                                            strcpy(tmpBool[identLevel], $5);
+																			char tmpVar[15];
+																			strcpy(tmpVar, $5);
+																			strcpy(tmpContent, tmpVar[0]);
+																			tmpVar++;
+																			strcat(tmpContent, "[");
+																			strcat(tmpContent, tmpVar);
+																			strcat(tmpContent, "]")
+													  
+                                                                            strcpy(tmpBool[identLevel], tmpContent);
                                                                             strcat(tmpBool[identLevel], "[0] == ");
                                                                             strcat(tmpBool[identLevel], "\"");
                                                                             strcat(tmpBool[identLevel], $2);
@@ -116,7 +130,14 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                         }
             | tok_NONEM tok_QMARK tok_OPAR tok_VAR tok_CPAR             {/* Check if var is empty */
                                                                             tmpLineNo[identLevel] = lineNo;
-                                                                            strcpy(tmpBool[identLevel], $4);
+																			char tmpVar[15];
+																			strcpy(tmpVar, $4);
+																			strcpy(tmpContent, tmpVar[0]);
+																			tmpVar++;
+																			strcat(tmpContent, "[");
+																			strcat(tmpContent, tmpVar);
+																			strcat(tmpContent, "]")
+                                                                            strcpy(tmpBool[identLevel], tmpContent);
                                                                             strcat(tmpBool[identLevel], " != []:");
                                                                             identLevel++;
                                                                             lineNo++;
@@ -153,7 +174,8 @@ void emitCode(FILE *fout) {
         fprintf(fout, "    ");
         fprintf(fout, "%s\n", locList[i].value);
     }
-    
+    fprintf(fout, "if __name__ == '__main__':");
+	fprintf(fout, "    def do_comp(x):");
 }
 
 int yyerror(char *errMessage) {
