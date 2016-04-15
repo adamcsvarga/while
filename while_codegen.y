@@ -174,8 +174,15 @@ void emitCode(FILE *fout) {
         fprintf(fout, "    ");
         fprintf(fout, "%s\n", locList[i].value);
     }
+	fprintf(fout, "    return x");
     fprintf(fout, "if __name__ == '__main__':");
-	fprintf(fout, "    def do_comp(x):");
+	fprintf(fout, "    with open('input.txt',r) as source: lines = source.readlines()");
+	fprintf(fout, "    x = [[]]");
+	fprintf(fout, "    for line in lines: x.append(line.strip().split())");
+	fprintf(fout, "    x = do_comp(x)");
+	fprintf(fout, "    for i in range(0,len(x)): print('x' + str(i) + ': ' + ' '.join(x[i]) + '\n')");
+	
+	
 }
 
 int yyerror(char *errMessage) {
