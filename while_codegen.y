@@ -72,13 +72,14 @@ statement   : assignment    { }
 assignment  : tok_VAR tok_ASSIGN right_hand tok_SEP { /* Assigning to var */
 													  char tmpVar[15];
 													  strcpy(tmpVar, $1);
-													  strcpy(tmpContent, tmpVar[0]);
-													  tmpVar++;
+													  strncpy(tmpContent, tmpVar, 1);
+													  memmove(tmpVar, tmpVar+1, strlen(tmpVar));
 													  strcat(tmpContent, "[");
 													  strcat(tmpContent, tmpVar);
 													  strcat(tmpContent, "]");
                                                       strcat(tmpContent, " = ");
-                                                      strcat(tmpContent, rightHand);   
+                                                      strcat(tmpContent, rightHand);
+                                                     
                                                     }
             ;
             
@@ -114,11 +115,11 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                             tmpLineNo[identLevel] = lineNo;
 																			char tmpVar[15];
 																			strcpy(tmpVar, $5);
-																			strcpy(tmpContent, tmpVar[0]);
-																			tmpVar++;
-																			strcat(tmpContent, "[");
-																			strcat(tmpContent, tmpVar);
-																			strcat(tmpContent, "]")
+																			strncpy(tmpBool[identLevel], tmpVar, 1);
+																			memmove(tmpVar, tmpVar+1, strlen(tmpVar));
+																			strcat(tmpBool[identLevel], "[");
+																			strcat(tmpBool[identLevel], tmpVar);
+																			strcat(tmpBool[identLevel], "]");
 													  
                                                                             strcpy(tmpBool[identLevel], tmpContent);
                                                                             strcat(tmpBool[identLevel], "[0] == ");
@@ -132,11 +133,11 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
                                                                             tmpLineNo[identLevel] = lineNo;
 																			char tmpVar[15];
 																			strcpy(tmpVar, $4);
-																			strcpy(tmpContent, tmpVar[0]);
-																			tmpVar++;
-																			strcat(tmpContent, "[");
-																			strcat(tmpContent, tmpVar);
-																			strcat(tmpContent, "]")
+																			strncpy(tmpBool[identLevel], tmpVar, 1);
+																			memmove(tmpVar, tmpVar+1, strlen(tmpVar));
+																			strcat(tmpBool[identLevel], "[");
+																			strcat(tmpBool[identLevel], tmpVar);
+																			strcat(tmpBool[identLevel], "]");
                                                                             strcpy(tmpBool[identLevel], tmpContent);
                                                                             strcat(tmpBool[identLevel], " != []:");
                                                                             identLevel++;
@@ -165,7 +166,7 @@ if          : tok_IF bool tok_THEN program tok_END tok_IF tok_SEP {/* If branch 
 
 void emitCode(FILE *fout) {
     int i;
-    fprintf(fout, "def do_comp(x):");
+    fprintf(fout, "def do_comp(x):\n");
     for(i = 0; i < lineNo; i++) {
         int j;
         for(j = 0; j < locList[i].ident; j++) {
@@ -174,13 +175,13 @@ void emitCode(FILE *fout) {
         fprintf(fout, "    ");
         fprintf(fout, "%s\n", locList[i].value);
     }
-	fprintf(fout, "    return x");
-    fprintf(fout, "if __name__ == '__main__':");
-	fprintf(fout, "    with open('input.txt',r) as source: lines = source.readlines()");
-	fprintf(fout, "    x = [[]]");
-	fprintf(fout, "    for line in lines: x.append(line.strip().split())");
-	fprintf(fout, "    x = do_comp(x)");
-	fprintf(fout, "    for i in range(0,len(x)): print('x' + str(i) + ': ' + ' '.join(x[i]) + '\n')");
+	fprintf(fout, "    return x\n");
+    fprintf(fout, "if __name__ == '__main__':\n");
+	fprintf(fout, "    with open('input.txt','r') as source: lines = source.readlines()\n");
+	fprintf(fout, "    x = [[]]\n");
+	fprintf(fout, "    for line in lines: x.append(line.strip().split())\n");
+	fprintf(fout, "    x = do_comp(x)\n");
+	fprintf(fout, "    for i in range(0,len(x)): print('x' + str(i) + ': ' + ' '.join(x[i]) + '\\n')\n");
 	
 	
 }
