@@ -138,7 +138,7 @@ bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Chec
 																			strcat(tmpBool[identLevel], "[");
 																			strcat(tmpBool[identLevel], tmpVar);
 																			strcat(tmpBool[identLevel], "]");
-                                                                            strcpy(tmpBool[identLevel], tmpContent);
+                                                                            /*strcpy(tmpBool[identLevel], tmpContent);*/
                                                                             strcat(tmpBool[identLevel], " != []:");
                                                                             identLevel++;
                                                                             lineNo++;
