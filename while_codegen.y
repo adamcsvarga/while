@@ -104,42 +104,42 @@ while       : tok_WHILE bool tok_LOOP program tok_END tok_LOOP tok_SEP  { /* Whi
                                                             strcpy(tmpContent, "while ");
                                                             
                                                             identLevel--;
-                                                            strcat(tmpContent, tmpBool[identLevel]);
-                                                            locList[tmpLineNo[identLevel]].ident = identLevel;
-                                                            locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
+                                                            strcat(tmpContent, tmpBool[(identLevel + lineNo) / 2]);
+                                                            locList[tmpLineNo[(identLevel + lineNo) / 2]].ident = identLevel;
+                                                            locList[tmpLineNo[(identLevel + lineNo) / 2]].value = strdup(tmpContent);
                                                             added = 1;
                                                         }
             ;
 
 bool        : tok_CAR tok_SYMBOL tok_QMARK tok_OPAR tok_VAR tok_CPAR    {/* Check first char of var */
-                                                                            tmpLineNo[identLevel] = lineNo;
+                                                                            tmpLineNo[(identLevel + lineNo) / 2] = lineNo;
 																			char tmpVar[15];
 																			strcpy(tmpVar, $5);
-																			strncpy(tmpBool[identLevel], tmpVar, 1);
+																			strncpy(tmpBool[(identLevel + lineNo) / 2], tmpVar, 1);
 																			memmove(tmpVar, tmpVar+1, strlen(tmpVar));
-																			strcat(tmpBool[identLevel], "[");
-																			strcat(tmpBool[identLevel], tmpVar);
-																			strcat(tmpBool[identLevel], "]");
+																			strcat(tmpBool[(identLevel + lineNo) / 2], "[");
+																			strcat(tmpBool[(identLevel + lineNo) / 2], tmpVar);
+																			strcat(tmpBool[(identLevel + lineNo) / 2], "]");
 													  
-                                                                            strcpy(tmpBool[identLevel], tmpContent);
-                                                                            strcat(tmpBool[identLevel], "[0] == ");
-                                                                            strcat(tmpBool[identLevel], "\"");
-                                                                            strcat(tmpBool[identLevel], $2);
-                                                                            strcat(tmpBool[identLevel], "\":");
+                                                                            strcpy(tmpBool[(identLevel + lineNo) / 2], tmpContent);
+                                                                            strcat(tmpBool[(identLevel + lineNo) / 2], "[0] == ");
+                                                                            strcat(tmpBool[(identLevel + lineNo) / 2], "\"");
+                                                                            strcat(tmpBool[(identLevel + lineNo) / 2], $2);
+                                                                            strcat(tmpBool[(identLevel + lineNo) / 2], "\":");
                                                                             identLevel++;
                                                                             lineNo++;                                                                        
                                                                         }
             | tok_NONEM tok_QMARK tok_OPAR tok_VAR tok_CPAR             {/* Check if var is empty */
-                                                                            tmpLineNo[identLevel] = lineNo;
+                                                                            tmpLineNo[(identLevel + lineNo) / 2] = lineNo;
 																			char tmpVar[15];
 																			strcpy(tmpVar, $4);
-																			strncpy(tmpBool[identLevel], tmpVar, 1);
+																			strncpy(tmpBool[(identLevel + lineNo) / 2], tmpVar, 1);
 																			memmove(tmpVar, tmpVar+1, strlen(tmpVar));
-																			strcat(tmpBool[identLevel], "[");
-																			strcat(tmpBool[identLevel], tmpVar);
-																			strcat(tmpBool[identLevel], "]");
-                                                                            /*strcpy(tmpBool[identLevel], tmpContent);*/
-                                                                            strcat(tmpBool[identLevel], " != []:");
+																			strcat(tmpBool[(identLevel + lineNo) / 2], "[");
+																			strcat(tmpBool[(identLevel + lineNo) / 2], tmpVar);
+																			strcat(tmpBool[(identLevel + lineNo) / 2], "]");
+                                                                            /*strcpy(tmpBool[(identLevel + lineNo) / 2], tmpContent);*/
+                                                                            strcat(tmpBool[(identLevel + lineNo) / 2], " != []:");
                                                                             identLevel++;
                                                                             lineNo++;
                                                                         }
@@ -149,9 +149,9 @@ if          : tok_IF bool tok_THEN program tok_END tok_IF tok_SEP {/* If branch 
                                                         strcpy(tmpContent, "if ");
                                                         
                                                         identLevel--;
-                                                        strcat(tmpContent, tmpBool[identLevel]);
-                                                        locList[tmpLineNo[identLevel]].ident = identLevel;
-                                                        locList[tmpLineNo[identLevel]].value = strdup(tmpContent);
+                                                        strcat(tmpContent, tmpBool[(identLevel + lineNo) / 2]);
+                                                        locList[tmpLineNo[(identLevel + lineNo) / 2]].ident = identLevel;
+                                                        locList[tmpLineNo[(identLevel + lineNo) / 2]].value = strdup(tmpContent);
                                                         added = 1;
                                                     }
             ;
